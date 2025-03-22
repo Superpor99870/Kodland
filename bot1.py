@@ -15,7 +15,30 @@ async def hello(ctx):
     await ctx.send(f'Hola, soy un bot {bot.user}!')
 
 @bot.command()
-async def heh(ctx, count_heh = 5):
+async def heh(ctx, count_heh: int = 5):
     await ctx.send("he" * count_heh)
 
-bot.run("MTM1MDQ2Mzg1MzIwNDYwNzA1OA.Gu-xaY.K9glZdmyg1eQtlSmF6R4EMsjsmJhkarUcJ83L8")
+class MyCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self._last_member = None
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        channel = member.guild.system_channel
+        if channel is not None:
+            await channel.send(f'Welcome {member.mention}.')
+
+    @commands.command()
+    async def hello(self, ctx, *, member: discord.Member = None):
+        """Says hello"""
+        member = member or ctx.author
+        if self._last_member is None or self._last_member.id != member.id:
+            await ctx.send(f'Hello {member.name}~')
+        else:
+            await ctx.send(f'Hello {member.name}... This feels familiar.')
+        self._last_member = member
+
+bot.add_cog(MyCog(bot))
+
+bot.run("MFJudLcA4")
